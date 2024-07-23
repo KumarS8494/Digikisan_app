@@ -6,7 +6,7 @@ import axios from 'axios';
 const WeatherScreen = () => {
   const [location, setLocation] = useState(null);
   const [weather, setWeather] = useState(null);
-  const API_KEY = '9b01d974ab68eba9d9bc8f797568704c'; // Replace with your OpenWeather API key
+  const API_KEY = 'YOUR_API_KEY'; // Replace with your OpenWeather API key
 
   useEffect(() => {
     const requestLocationPermission = async () => {
