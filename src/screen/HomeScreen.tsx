@@ -32,11 +32,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'#fff'
+    backgroundColor:'#f1efe4'
   },
   logo: {
-    width: 300, // Adjust the width as needed
-    height: 100, // Adjust the height as needed
+    width: 370, // Adjust the width as needed
+    height: 150, // Adjust the height as needed
     padding:'30%',
     marginBottom:'50%',
     resizeMode: 'contain', // Ensure the image maintains its aspect ratio

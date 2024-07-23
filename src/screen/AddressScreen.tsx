@@ -20,7 +20,7 @@ const AddressScreen = () => {
     console.log('Crops:', crops);
     
     // Navigate to BLE screen
-    navigation.navigate('BleScrenn');
+    navigation.navigate('BleScreen');
   };
 
   const handleBackPress = () => {

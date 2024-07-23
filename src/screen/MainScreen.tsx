@@ -8,7 +8,8 @@ const MainScreen: React.FC = () => {
     const { username } = useUser();
 
     const handleButtonPress = (buttonName: string) => {
-        Alert.alert(buttonName, `You pressed the ${buttonName} button`);
+        // Alert.alert(buttonName, `You pressed the ${buttonName} button`);
+        navigation.navigate('weather')
         // Add navigation or functionality for each button here
     };
     const handleDatasamplingPress =()=>{
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f7f3e9', // Background color
+        backgroundColor: '#f1efe4', // Background color
     },
     logo: {
       width: 280,

@@ -13,7 +13,7 @@ const RegistrationScreen = () => {
         // Handle the sign-up logic here
         console.log('Sign Up clicked');
         // Navigate to the main screen after successful registration
-        navigation.navigate('Main');
+        navigation.navigate('Login');
     };
 
     return (
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f7f3e9', // Background color
+        backgroundColor: '#f1efe4', // Background color
     },
     logo: {
         width: 280,
@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingHorizontal: 10,
         backgroundColor: '#fff', // White background for input fields
+        color:"#000",
     },
     loginButton: {
         width: '80%',

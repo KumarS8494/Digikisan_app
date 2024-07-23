@@ -58,11 +58,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f3e9', // Background color
+    backgroundColor: '#f1efe4', // Background color
   },
   logo: {
-    width: 280,
-    height: 100,
+    width: 370,
+    height: 150,
     resizeMode: 'contain',
     marginBottom: 150,
     borderRadius:20

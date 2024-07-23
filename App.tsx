@@ -10,6 +10,8 @@ import RegistrationScreen from './src/auth/Register';
 import { UserProvider } from './src/auth/UserContext';
 import AddressScreen from './src/screen/AddressScreen';
 import BluetoothScreen from './src/screen/Bluetooth';
+import DataScreen from './src/screen/Data';
+import WeatherScreen from './src/screen/Weather';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,7 +36,10 @@ const App = () => {
         <Stack.Screen name="Register" component={RegistrationScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="address" component={AddressScreen} options={{headerShown:false}} />
-        <Stack.Screen name='BleScrenn' component={BluetoothScreen} options={{headerShown:false}} />
+        <Stack.Screen name='BleScreen' component={BluetoothScreen} options={{headerShown:false}} />
+        <Stack.Screen name="DataScreen" component={DataScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="weather" component={WeatherScreen} options={{headerShown:false}}/>
+
         </Stack.Navigator>
       )}
     </NavigationContainer>

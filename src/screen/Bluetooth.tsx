@@ -9,9 +9,11 @@ import {
   Alert,
   PermissionsAndroid,
 } from 'react-native';
-import BluetoothClassic from 'react-native-ble-manager';
+import BleManager from 'react-native-ble-manager';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../auth/UserContext';
+import { Picker } from '@react-native-picker/picker';
+import { NativeModules, NativeEventEmitter } from 'react-native';
 
 const BluetoothScreen = () => {
   const { username } = useUser();
@@ -35,6 +37,7 @@ const BluetoothScreen = () => {
           granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
         ) {
           console.log('You can use the Bluetooth');
+          enableBluetooth();
         } else {
           console.log('Bluetooth permission denied');
         }
@@ -44,21 +47,32 @@ const BluetoothScreen = () => {
     };
 
     requestPermissions();
-    startScan(); // Initial scan when component mounts
   }, []);
 
-  const startScan = async () => {
+  const enableBluetooth = async () => {
     try {
-      const devices = await BluetoothClassic.list();
-      setDevices(devices);
-    } catch (err) {
-      console.error(err);
+      await BleManager.enableBluetooth();
+      console.log('Bluetooth is enabled');
+      BleManager.start({ showAlert: false });
+      startScan();
+    } catch (error) {
+      console.log('Bluetooth enable error', error);
     }
+  };
+
+  const startScan = () => {
+    BleManager.scan([], 5, false)
+      .then(() => {
+        console.log('Scanning...');
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   const handleConnect = async (device) => {
     try {
-      await BluetoothClassic.connect(device.id);
+      await BleManager.connect(device.id);
       setConnectedDevice(device);
       Alert.alert('Bluetooth Connection Successful');
     } catch (error) {
@@ -66,10 +80,28 @@ const BluetoothScreen = () => {
     }
   };
 
-  const handleBackPress = () => {
-    navigation.goBack();
-  };
+  useEffect(() => {
+    const handleDiscoverPeripheral = (peripheral) => {
+      setDevices(prevDevices => [...prevDevices, peripheral]);
+    };
 
+    const bleManagerEmitter = new NativeEventEmitter(NativeModules.BleManager);
+    bleManagerEmitter.addListener('BleManagerDiscoverPeripheral', handleDiscoverPeripheral);
+
+    BleManager.start({ showAlert: false });
+
+    return () => {
+      bleManagerEmitter.removeAllListeners('BleManagerDiscoverPeripheral');
+    };
+  }, []);
+
+  const handleDataPress = () => {
+    if (connectedDevice) {
+      navigation.navigate('DataScreen', { deviceName: connectedDevice.name || connectedDevice.id });
+    } else {
+      Alert.alert('No device connected', 'Please connect to a Bluetooth device before proceeding.');
+    }
+  };
   return (
     <View style={styles.container}>
       <Image source={require('../assets/images/logo.png')} style={styles.logo} />
@@ -108,8 +140,8 @@ const BluetoothScreen = () => {
       <TouchableOpacity style={styles.scanButton} onPress={startScan}>
         <Text style={styles.scanButtonText}>Scan for Devices</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-        <Text style={styles.backButtonText}>BACK</Text>
+      <TouchableOpacity style={styles.dataButton} onPress={handleDataPress}>
+        <Text style={styles.dataButtonText}>DATA</Text>
       </TouchableOpacity>
     </View>
   );
@@ -125,7 +157,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 300, // Adjust the width as needed
     height: 100, // Adjust the height as needed
-    marginBottom:'10%',
+    marginBottom: '10%',
     resizeMode: 'contain', // Ensure the image maintains its aspect ratio
   },
   username: {
@@ -163,7 +195,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: '80%',
     textAlign: 'center',
-    color:'#000'
+    color: '#000',
   },
   bluetoothIcon: {
     width: 50,
@@ -174,7 +206,6 @@ const styles = StyleSheet.create({
     height: 40,
     width: '80%',
     marginBottom: 20,
-    
     color: '#000', // Ensures the text color is visible
     backgroundColor: '#CECECE', // Ensures the background color is visible
   },
@@ -192,7 +223,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  backButton: {
+  dataButton: {
     width: '80%',
     height: 40,
     backgroundColor: '#00A36C',
@@ -200,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 20,
   },
-  backButtonText: {
+  dataButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
