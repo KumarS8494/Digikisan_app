@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
       borderRadius:20
     },
     userContainer: {
-        backgroundColor: '#00A36C',
+        backgroundColor: '#f1efe4',
         borderRadius: 20,
         paddingVertical: 10,
         paddingHorizontal: 30,

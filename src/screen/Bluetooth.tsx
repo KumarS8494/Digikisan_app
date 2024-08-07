@@ -8,19 +8,28 @@ import {
   Image,
   Alert,
   PermissionsAndroid,
+  FlatList,
 } from 'react-native';
 import BleManager from 'react-native-ble-manager';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../auth/UserContext';
 import { Picker } from '@react-native-picker/picker';
 import { NativeModules, NativeEventEmitter } from 'react-native';
+import { useRGB } from '../../src/RGBContext';
+import { useBluetooth } from '../../src/BluetoothContext';
+
+const serviceUUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b'; // Replace with your service UUID
+const characteristicUUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8'; // Replace with your characteristic UUID
 
 const BluetoothScreen = () => {
+  const [rgbData, setRgbData] = useState({ R: 0, G: 0, B: 0 });
   const { username } = useUser();
   const navigation = useNavigation();
   const [samplingSize, setSamplingSize] = useState('');
   const [devices, setDevices] = useState([]);
   const [connectedDevice, setConnectedDevice] = useState(null);
+  const { bluetoothData } = useBluetooth();
+  const [rawData, setRawData] = useState('');
 
   useEffect(() => {
     const requestPermissions = async () => {
@@ -73,16 +82,61 @@ const BluetoothScreen = () => {
   const handleConnect = async (device) => {
     try {
       await BleManager.connect(device.id);
+      await BleManager.retrieveServices(device.id);
       setConnectedDevice(device);
+      subscribeToCharacteristic(device.id);
       Alert.alert('Bluetooth Connection Successful');
     } catch (error) {
       console.log('Connection error', error);
     }
   };
 
+  const subscribeToCharacteristic = (deviceId) => {
+    BleManager.startNotification(deviceId, serviceUUID, characteristicUUID)
+      .then(() => {
+        console.log('Started notification on characteristic');
+      })
+      .catch((error) => {
+        console.error('Notification error', error);
+      });
+
+    // const handleValueUpdate = (data) => {
+    //   if (data.peripheral === deviceId && data.characteristic === characteristicUUID) {
+    //     const rawData = data.value;
+    //     console.log(data.value);
+    //     setRawData(rawData);
+    //     console.log(Raw Data: ${rawData});
+    //   }
+    // };
+    const handleValueUpdate = (data) => {
+      if (data.peripheral === deviceId && data.characteristic === characteristicUUID) {
+        // Ensure the data is correctly interpreted
+        const rawData = data.value;
+        console.log('Raw Data:', rawData);
+        setRgbData(rawData);
+        try {
+          const stringData = String.fromCharCode(...new Uint8Array(rawData));
+          console.log('Decoded Data:', stringData);
+          setRawData(stringData);
+        } catch (error) {
+          console.error('Error decoding data:', error);
+        }
+      }
+    };
+
+    const bleManagerEmitter = new NativeEventEmitter(NativeModules.BleManager);
+    bleManagerEmitter.addListener('BleManagerDidUpdateValueForCharacteristic', handleValueUpdate);
+
+    return () => {
+      bleManagerEmitter.removeListener('BleManagerDidUpdateValueForCharacteristic', handleValueUpdate);
+    };
+  };
+
   useEffect(() => {
     const handleDiscoverPeripheral = (peripheral) => {
-      setDevices(prevDevices => [...prevDevices, peripheral]);
+      if (peripheral.name === 'ESP32') { // Change this line to check for the device name
+        setDevices((prevDevices) => [...prevDevices, peripheral]);
+      }
     };
 
     const bleManagerEmitter = new NativeEventEmitter(NativeModules.BleManager);
@@ -97,11 +151,13 @@ const BluetoothScreen = () => {
 
   const handleDataPress = () => {
     if (connectedDevice) {
-      navigation.navigate('DataScreen', { deviceName: connectedDevice.name || connectedDevice.id });
+      // navigation.navigate('DataScreen', { deviceName: connectedDevice.name || connectedDevice.id });
+      navigation.navigate('RgbGraph', { bluetoothData });
     } else {
       Alert.alert('No device connected', 'Please connect to a Bluetooth device before proceeding.');
     }
   };
+
   return (
     <View style={styles.container}>
       <Image source={require('../assets/images/logo.png')} style={styles.logo} />
@@ -126,7 +182,9 @@ const BluetoothScreen = () => {
         style={styles.picker}
         onValueChange={(itemValue) => {
           const selectedDevice = devices.find(device => device.id === itemValue);
-          handleConnect(selectedDevice);
+          if (selectedDevice) {
+            handleConnect(selectedDevice);
+          }
         }}
       >
         {devices.map((device) => (
@@ -143,6 +201,12 @@ const BluetoothScreen = () => {
       <TouchableOpacity style={styles.dataButton} onPress={handleDataPress}>
         <Text style={styles.dataButtonText}>DATA</Text>
       </TouchableOpacity>
+      {rawData ? (
+        <View style={styles.dataContainer}>
+          <Text style={styles.dataLabel}>Raw Data:</Text>
+          <Text style={styles.dataValue}>{rawData}</Text>
+        </View>
+      ) : null}
     </View>
   );
 };
@@ -155,10 +219,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f3e9',
   },
   logo: {
-    width: 300, // Adjust the width as needed
-    height: 100, // Adjust the height as needed
+    width: 300,
+    height: 100,
     marginBottom: '10%',
-    resizeMode: 'contain', // Ensure the image maintains its aspect ratio
+    resizeMode: 'contain',
   },
   username: {
     fontSize: 20,
@@ -206,8 +270,8 @@ const styles = StyleSheet.create({
     height: 40,
     width: '80%',
     marginBottom: 20,
-    color: '#000', // Ensures the text color is visible
-    backgroundColor: '#CECECE', // Ensures the background color is visible
+    color: '#000',
+    backgroundColor: '#CECECE',
   },
   scanButton: {
     width: '80%',
@@ -235,6 +299,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  dataContainer: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    elevation: 2,
+  },
+  dataLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#00A36C',
+    marginBottom: 8,
+  },
+  dataValue: {
+    fontSize: 16,
+    color: '#000',
   },
 });
 

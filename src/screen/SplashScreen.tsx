@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import Video from 'react-native-video';
 import { useNavigation } from '@react-navigation/native';
-import Splashvideo from '../assets/SplashScreen.mp4'
 
 const SplashScreen: React.FC = () => {
   const navigation = useNavigation();

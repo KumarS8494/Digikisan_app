@@ -3,23 +3,21 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'reac
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../auth/UserContext';
 
-
-
 const AddressScreen = () => {
-    const { username } = useUser();
-    const navigation = useNavigation();
-    const [address, setAddress] = useState('');
-    const [area, setArea] = useState('');
-    const [crops, setCrops] = useState('');
-  
+  const { username } = useUser();
+  const navigation = useNavigation();
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [area, setArea] = useState('');
+  const [crops, setCrops] = useState('');
 
   const handleSavePress = () => {
-    // Handle save action
     console.log('Address:', address);
     console.log('Area:', area);
     console.log('Crops:', crops);
+    console.log('City:', city);
     
-    // Navigate to BLE screen
+    // Navigate to WeatherScreen and pass the city name
     navigation.navigate('BleScreen');
   };
 
@@ -41,16 +39,29 @@ const AddressScreen = () => {
           style={styles.input}
           placeholder="Address"
           placeholderTextColor="#888"
+          value={address}
+          onChangeText={setAddress}
         />
         <TextInput
           style={styles.input}
           placeholder="Area"
           placeholderTextColor="#888"
+          value={area}
+          onChangeText={setArea}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="City"
+          placeholderTextColor="#888"
+          value={city}
+          onChangeText={setCity}
         />
         <TextInput
           style={styles.input}
           placeholder="Crops"
           placeholderTextColor="#888"
+          value={crops}
+          onChangeText={setCrops}
         />
       </View>
       <TouchableOpacity style={styles.saveButton} onPress={handleSavePress}>
@@ -73,7 +84,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 300, // Adjust the width as needed
     height: 100, // Adjust the height as needed
-    marginBottom:'10%',
+    marginBottom: '10%',
     resizeMode: 'contain', // Ensure the image maintains its aspect ratio
   },
   username: {
@@ -99,7 +110,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
     backgroundColor: '#fff',
-    color:'#000'
+    color: '#000',
   },
   saveButton: {
     width: '80%',

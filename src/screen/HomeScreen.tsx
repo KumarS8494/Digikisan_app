@@ -6,7 +6,7 @@ import logoImage from '../assets/images/logo.png';
 import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
   const handleButtonPress = () => {
     // Alert.alert('work in progress');
     console.log('Button pressed');
@@ -32,25 +32,40 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'#f1efe4'
+    backgroundColor: '#f1efe4'
   },
   logo: {
     width: 370, // Adjust the width as needed
     height: 150, // Adjust the height as needed
-    padding:'30%',
-    marginBottom:'50%',
+    padding: '30%',
+    marginBottom: '50%',
     resizeMode: 'contain', // Ensure the image maintains its aspect ratio
   },
+  // button: {
+  //   backgroundColor: '#3498db', // Example button background color
+  //   paddingHorizontal: 20,
+  //   paddingVertical: 10,
+  //   borderRadius: 10,
+  //   marginBottom: '60%',
+  // },
+  // buttonText: {
+  //   color: '#ffffff', // Example button text color
+  //   fontSize: 20,
+  //   fontWeight: 'bold',
+  // },
+
   button: {
-    backgroundColor: '#3498db', // Example button background color
-    paddingHorizontal: 20,
+    borderColor: '#00A36C',
+    borderWidth: 2,
+    borderRadius: 20,
     paddingVertical: 10,
-    borderRadius: 10,
-    marginBottom:'60%',
+    paddingHorizontal: 20,
+    marginVertical: 5,
+    alignItems: 'center',
   },
   buttonText: {
-    color: '#ffffff', // Example button text color
-    fontSize: 20,
+    color: '#00A36C',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
